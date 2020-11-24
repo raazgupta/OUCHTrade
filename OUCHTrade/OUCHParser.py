@@ -64,7 +64,7 @@ class OUCHParser:
                 ["time_in_force", 17, 4, "integer"],
                 ["display", 21, 1, "alpha"],
                 ["minimum_quantity", 22, 4, "integer"]
-            ]
+            ],
             'X':  # Cancel Order Message
             [
                 ["message_type", 0, 1, "alpha"],
