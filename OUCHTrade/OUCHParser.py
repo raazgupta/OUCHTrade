@@ -70,6 +70,88 @@ class OUCHParser:
                 ["message_type", 0, 1, "alpha"],
                 ["order_token", 1, 4, "integer"],
                 ["quantity", 5, 4, "integer"]
+            ],
+            'S':  # System Event Message
+            [
+                ["message_type", 0, 1, "alpha"],
+                ["timestamp", 1, 8, "integer"],
+                ["system_event", 9, 1, "alpha"]
+            ]
+        }
+
+        sequenced_message_dicts = {
+            'A':  # Order Accepted Message
+            [
+                ["message_type", 0, 1, "alpha"],
+                ["timestamp", 1, 8, "integer"],
+                ["order_token", 9, 4, "integer"],
+                ["client_reference", 13, 10, "alpha"],
+                ["buy_sell_indicator", 23, 1, "alpha"],
+                ["quantity", 24, 4, "integer"],
+                ["orderbook_id", 28, 4, "integer"],
+                ["group", 32, 4, "alpha"],
+                ["price", 36, 4, "integer"],
+                ["time_in_force", 40, 4, "integer"],
+                ["firm_id", 44, 4, "integer"],
+                ["display", 48, 1, "alpha"],
+                ["order_number", 50, 8, "integer"],
+                ["minimum_quantity", 58, 4, "integer"],
+                ["order_state", 62, 1, "alpha"],
+                ["order_classification", 63, 1, "alpha"],
+                ["cash_margin_type", 64, 1, "alpha"]
+            ],
+            'U':  # Order Replaced Message
+            [
+                ["message_type", 0, 1, "alpha"],
+                ["timestamp", 1, 8, "integer"],
+                ["replacement_order_token", 9, 4, "integer"],
+                ["buy_sell_indicator", 13, 1, "alpha"],
+                ["quantity", 14, 4, "integer"],
+                ["orderbook_id", 18, 4, "integer"],
+                ["group", 22, 4, "alpha"],
+                ["price", 26, 4, "integer"],
+                ["time_in_force", 30, 4, "integer"],
+                ["display", 34, 1, "alpha"],
+                ["order_number", 35, 8, "integer"],
+                ["minimum_quantity", 43, 4, "integer"],
+                ["order_state", 47, 1, "alpha"],
+                ["previous_order_token", 48, 4, "integer"]
+            ],
+            'C':  # Order Canceled Message
+            [
+                ["message_type", 0, 1, "alpha"],
+                ["timestamp", 1, 8, "integer"],
+                ["order_token", 9, 4, "integer"],
+                ["decrement_quantity", 13, 4, "integer"],
+                ["order_canceled_reason", 17, 1, "alpha"]
+            ],
+            'D':  # Order AIQ Canceled Message
+            [
+                ["message_type", 0, 1, "alpha"],
+                ["timestamp", 1, 8, "integer"],
+                ["order_token", 9, 4, "integer"],
+                ["decrement_quantity", 13, 4, "integer"],
+                ["order_canceled_reason", 17, 1, "alpha"],
+                ["quantity_prevented_from_trading", 18, 4, "integer"],
+                ["execution_price", 22, 4, "integer"],
+                ["liquidity_indicator", 26, 1, "alpha"]
+            ],
+            'E':  # Order Executed Message
+            [
+                ["message_type", 0, 1, "alpha"],
+                ["timestamp", 1, 8, "integer"],
+                ["order_token", 9, 4, "integer"],
+                ["executed_quantity", 13, 4, "integer"],
+                ["execution_price", 17, 4, "integer"],
+                ["liquidity_indicator", 21, 1, "alpha"],
+                ["match_number", 22, 8, "integer"]
+            ],
+            'J':  # Order Rejected Message
+            [
+                ["message_type", 0, 1, "alpha"],
+                ["timestamp", 1, 8, "integer"],
+                ["order_token", 9, 4, "integer"],
+                ["order_rejected_reason", 13, 1, "alpha"]
             ]
         }
 
@@ -93,6 +175,11 @@ class OUCHParser:
             ouch_dict["text"] = text
         elif packet_type_chr == 'S':  # Sequenced Data Packet
             ouch_dict["packet_type"] = 'S'
+            message_type_byte = ouch_bytes[packet_length+1]
+            message_type_chr = chr(message_type_byte)
+            message_list = sequenced_message_dicts[message_type_chr]
+            if message_list:
+                ouch_dict = OUCHParser.parse_message(ouch_bytes[packet_length+1:], message_list, ouch_dict)
         elif packet_type_chr == 'U':  # Unsequenced Data Packet
             ouch_dict["packet_type"] = 'U'
             message_type_byte = ouch_bytes[packet_length+1]
