@@ -35,7 +35,10 @@ class OUCHParser:
                 ["password", 9, 10, "alpha"],
                 ["requested_session", 19, 10, "alpha"],
                 ["requested_sequence_number", 29, 20, "alpha"]
-            ],
+            ]
+        }
+
+        unsequenced_message_dicts = {
             'O':  # Enter Order Message
             [
                 ["message_type", 0, 1, "alpha"],
@@ -70,16 +73,16 @@ class OUCHParser:
                 ["message_type", 0, 1, "alpha"],
                 ["order_token", 1, 4, "integer"],
                 ["quantity", 5, 4, "integer"]
-            ],
+            ]
+        }
+
+        sequenced_message_dicts = {
             'S':  # System Event Message
             [
                 ["message_type", 0, 1, "alpha"],
                 ["timestamp", 1, 8, "integer"],
                 ["system_event", 9, 1, "alpha"]
-            ]
-        }
-
-        sequenced_message_dicts = {
+            ],
             'A':  # Order Accepted Message
             [
                 ["message_type", 0, 1, "alpha"],
@@ -184,7 +187,7 @@ class OUCHParser:
             ouch_dict["packet_type"] = 'U'
             message_type_byte = ouch_bytes[packet_length+1]
             message_type_chr = chr(message_type_byte)
-            message_list = message_dicts[message_type_chr]
+            message_list = unsequenced_message_dicts[message_type_chr]
             if message_list:
                 ouch_dict = OUCHParser.parse_message(ouch_bytes[packet_length+1:], message_list, ouch_dict)
         else:
