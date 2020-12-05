@@ -83,7 +83,7 @@ class OUCHAppServer:
         message_list.append(("firm_id", 44, 4, "integer", new_order_dict["firm_id"]))
         message_list.append(("display", 48, 1, "alpha", new_order_dict["display"]))
         message_list.append(("capacity", 49, 1, "alpha", new_order_dict["capacity"]))
-        message_list.append(("order_number", 50, 8, "integer", str(client_dict["current_seq_num"])))
+        message_list.append(("order_number", 50, 8, "integer", client_dict["current_seq_num"]))
         message_list.append(("minimum_quantity", 58, 4, "integer", new_order_dict["minimum_quantity"]))
         message_list.append(("order_state", 62, 1, "alpha", "L"))
         message_list.append(("order_classification", 63, 1, "alpha", new_order_dict["order_classification"]))
@@ -108,17 +108,17 @@ class OUCHAppServer:
         message_list.append(("timestamp", 1, 8, "integer", self.getSendingTime()))
         message_list.append(
             ("replacement_order_token", 9, 4, "integer", replace_request_dict["replacement_order_token"]))
-        message_list.append(("buy_sell_indicator", 13, 1, "alpha", replace_request_dict["buy_sell_indicator"]))
+        message_list.append(("buy_sell_indicator", 13, 1, "alpha", " "))
         message_list.append(("quantity", 14, 4, "integer", replace_request_dict["quantity"]))
-        message_list.append(("orderbook_id", 18, 4, "integer", replace_request_dict["orderbook_id"]))
-        message_list.append(("group", 22, 4, "alpha", replace_request_dict["group"]))
+        message_list.append(("orderbook_id", 18, 4, "integer", 0))
+        message_list.append(("group", 22, 4, "alpha", " "))
         message_list.append(("price", 26, 4, "integer", replace_request_dict["price"]))
         message_list.append(("time_in_force", 30, 4, "integer", replace_request_dict["time_in_force"]))
         message_list.append(("display", 34, 1, "alpha", replace_request_dict["display"]))
-        message_list.append(("order_number", 35, 8, "integer", str(client_dict["current_seq_num"])))
+        message_list.append(("order_number", 35, 8, "integer", client_dict["current_seq_num"]))
         message_list.append(("minimum_quantity", 43, 4, "integer", replace_request_dict["minimum_quantity"]))
         message_list.append(("order_state", 47, 1, "alpha", "L"))
-        message_list.append(("previous_order_token", 48, 4, "integer", replace_request_dict["previous_order_token"]))
+        message_list.append(("previous_order_token", 48, 4, "integer", replace_request_dict["existing_order_token"]))
 
         message = b''
         for message_tag in message_list:
@@ -200,7 +200,7 @@ class OUCHAppServer:
                             if ouch_dict["packet_type"] == "L":
                                 # Found a login request, send a login response
                                 print("Received Login Request")
-                                requested_session = ouch_dict["requested_sessoion"]
+                                requested_session = ouch_dict["requested_session"]
 
                                 self.clients_dict = {
                                                     notified_socket:
@@ -215,27 +215,29 @@ class OUCHAppServer:
                                 print("Sent Login Response")
                                 # Start sending Heartbeats
                                 self.start_sending_heartbeats(ouch_client_sock, self.clients_dict[notified_socket])
-                            elif ouch_dict["message_type"] == "O":
-                                # Found a new order, send a new order ack
-                                print("Received New Order:" + str(ouch_dict))
-                                client_dict = self.clients_dict[notified_socket]
-                                new_order_ack = self.create_new_order_ack(client_dict, ouch_dict)
-                                ouch_client_sock.send(new_order_ack)
-                                print(f"Sending New Order Ack to {ouch_client_sock.sock.getpeername()}: {OUCHParser.parse_ouch_bytes(new_order_ack)} ")
-                            elif ouch_dict["message_type"] == "U":
-                                # Found a replace order, send a replace result
-                                print("Received Replace Order:" + str(ouch_dict))
-                                client_dict = self.clients_dict[notified_socket]
-                                replace_result = self.create_replace_ack(client_dict, ouch_dict)
-                                ouch_client_sock.send(replace_result)
-                                print(f"Sending Order Replaced to {ouch_client_sock.sock.getpeername()}: {OUCHParser.parse_ouch_bytes(replace_result)} ")
-                            elif ouch_dict["message_type"] == "X":
-                                # Found a cancel order, send a cancel result
-                                print("Received Cancel Order:" + str(ouch_dict))
-                                client_dict = self.clients_dict[notified_socket]
-                                cancel_result = self.create_cancel_ack(client_dict, ouch_dict)
-                                ouch_client_sock.send(cancel_result)
-                                print(f"Sending Order Canceled to {ouch_client_sock.sock.getpeername()}: {OUCHParser.parse_ouch_bytes(cancel_result)} ")
+                            elif ouch_dict["packet_type"] == "U":
+                                if "message_type" in ouch_dict:
+                                    if ouch_dict["message_type"] == "O":
+                                        # Found a new order, send a new order ack
+                                        print("Received New Order:" + str(ouch_dict))
+                                        client_dict = self.clients_dict[notified_socket]
+                                        new_order_ack = self.create_new_order_ack(client_dict, ouch_dict)
+                                        ouch_client_sock.send(new_order_ack)
+                                        print(f"Sending New Order Ack to {ouch_client_sock.sock.getpeername()}: {OUCHParser.parse_ouch_bytes(new_order_ack)} ")
+                                    elif ouch_dict["message_type"] == "U":
+                                        # Found a replace order, send a replace result
+                                        print("Received Replace Order:" + str(ouch_dict))
+                                        client_dict = self.clients_dict[notified_socket]
+                                        replace_result = self.create_replace_ack(client_dict, ouch_dict)
+                                        ouch_client_sock.send(replace_result)
+                                        print(f"Sending Order Replaced to {ouch_client_sock.sock.getpeername()}: {OUCHParser.parse_ouch_bytes(replace_result)} ")
+                                    elif ouch_dict["message_type"] == "X":
+                                        # Found a cancel order, send a cancel result
+                                        print("Received Cancel Order:" + str(ouch_dict))
+                                        client_dict = self.clients_dict[notified_socket]
+                                        cancel_result = self.create_cancel_ack(client_dict, ouch_dict)
+                                        ouch_client_sock.send(cancel_result)
+                                        print(f"Sending Order Canceled to {ouch_client_sock.sock.getpeername()}: {OUCHParser.parse_ouch_bytes(cancel_result)} ")
 
         except KeyboardInterrupt:
             print("caught keyboard interrupt, exiting")

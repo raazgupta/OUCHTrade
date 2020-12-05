@@ -188,17 +188,16 @@ class OUCHAppClient:
                                     print("Heartbeat: " + str(ouch_dict))
                                 elif ouch_dict["packet_type"] == "S":
                                     if ouch_dict["message_type"] == "A":
-                                        print("Order Accepted - Order Token: " + ouch_dict['order_token'] + "  " + str(ouch_dict))
+                                        print(f"Order Accepted - Order Token: {ouch_dict['order_token']} {ouch_dict}")
                                     elif ouch_dict["message_type"] == "U":
-                                        print("Order Replaced - Order Token: " + ouch_dict['replacement_order_token'] + "  " + str(ouch_dict))
+                                        print(f"Order Replaced - Order Token: {ouch_dict['replacement_order_token']} {ouch_dict}")
                                     elif ouch_dict["message_type"] == "C":
-                                        print("Order Canceled - Order Token: " + ouch_dict['order_token'] + "  " + str(ouch_dict))
+                                        print(f"Order Canceled - Order Token: {ouch_dict['order_token']} {ouch_dict}")
                                     elif ouch_dict["message_type"] == "E":
                                         print(f"Filled - Order Token: {ouch_dict['order_token']} " +
-                                              f"Executed Quantity: {ouch_dict['executed_quantity']} Execution Price: {ouch_dict['execution_price']} " +
-                                              str(ouch_dict))
+                                              f"Executed Quantity: {ouch_dict['executed_quantity']} Execution Price: {ouch_dict['execution_price']} {ouch_dict}")
                                     elif ouch_dict["message_type"] == "J":
-                                        print("Order Rejected - Order Token: " + ouch_dict['order_token'] + "  " + str(ouch_dict))
+                                        print(f"Order Rejected - Order Token: {ouch_dict['order_token']} {ouch_dict}")
                                     else:
                                         print(str(ouch_dict))
                                 else:

@@ -166,11 +166,11 @@ class OUCHParser:
 
         if packet_type_chr == 'H':  # Server Heartbeat
             ouch_dict["packet_type"] = 'H'
-        if packet_type_chr == 'R':  # Client Heartbeat
+        elif packet_type_chr == 'R':  # Client Heartbeat
             ouch_dict["packet_type"] = 'R'
-        if packet_type_chr == 'Z':  # End of Session Packet
+        elif packet_type_chr == 'Z':  # End of Session Packet
             ouch_dict["packet_type"] = 'Z'
-        if packet_type_chr == 'O':  # Logout Request Packet
+        elif packet_type_chr == 'O':  # Logout Request Packet
             ouch_dict["packet_type"] = 'O'
         elif packet_type_chr == '+':  # Debug Packet
             ouch_dict["packet_type"] = '+'
