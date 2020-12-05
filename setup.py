@@ -8,8 +8,8 @@ setup(
   author = 'Raj Gupta',
   author_email = 'raazgupta@gmail.com',
   url = 'https://github.com/raazgupta/OUCHTrade',
-  download_url = '',
-  keywords = ['OUCH', 'TRADE', 'TEST', 'CLIENT', 'SERVER'],   # Keywords that define your package best
+  download_url = 'https://github.com/raazgupta/OUCHTrade/archive/0.1.tar.gz',
+  keywords = ['OUCH', 'TRADE', 'TEST', 'CLIENT', 'SERVER'],
   install_requires=[],
   classifiers=[
     'Development Status :: 3 - Alpha',
