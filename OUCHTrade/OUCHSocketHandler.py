@@ -32,8 +32,8 @@ class OUCHSocketHandler:
         print(f'Listening for connection on {host}:{port}...')
 
     def close(self):
-        print("Closing connection")
-        self.sock.shutdown(socket.SHUT_RDWR)
+        # print("Closing connection")
+        # self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
 
     def send(self, message):

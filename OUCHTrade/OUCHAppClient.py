@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-from datetime import datetime
 import threading
 
 from OUCHTrade.OUCHSocketHandler import OUCHSocketHandler
@@ -18,7 +17,7 @@ class OUCHAppClient:
         self.password = password
         self.send_seq_num = requested_sequence_number
         self.current_seq_num = int(requested_sequence_number)
-        self.group = "DAY"
+        self.group = "DAY "
         self.time_in_force = 99999
         self.firm_id = 0
         self.order_classification = "1"
@@ -134,7 +133,7 @@ class OUCHAppClient:
 
         message_list.append(("packet_type", 2, 1, "alpha", "U"))
         message_list.append(("message_type", 0, 1, "alpha", "X"))
-        message_list.append(("order_token", 1, 4, "integer", order_token))
+        message_list.append(("order_token", 1, 4, "integer", int(order_token)))
         message_list.append(("quantity", 5, 4, "integer", 0))
 
         message = b''
@@ -172,7 +171,7 @@ class OUCHAppClient:
 
         try:
             while True:
-                input_text = input("new / replace / cancel / get : ")
+                input_text = input("new / replace / cancel / get / close : ")
                 input_list = input_text.split(" ")
                 if input_list:
                     if input_list[0] == "get":
@@ -185,7 +184,8 @@ class OUCHAppClient:
                                 if ouch_dict["packet_type"] == "A":
                                     print("Login Accepted: " + str(ouch_dict))
                                 elif ouch_dict["packet_type"] == "H":
-                                    print("Heartbeat: " + str(ouch_dict))
+                                    # print("Heartbeat: " + str(ouch_dict))
+                                    continue
                                 elif ouch_dict["packet_type"] == "S":
                                     if ouch_dict["message_type"] == "A":
                                         print(f"Order Accepted - Order Token: {ouch_dict['order_token']} {ouch_dict}")
@@ -228,7 +228,9 @@ class OUCHAppClient:
                             self.ouch_client_sock.send(cancel_order)
                         else:
                             print("Usage: cancel <order token>")
-
+                    elif input_list[0] == "close":
+                        self.ouch_client_sock.close()
+                        sys.exit(1)
         except KeyboardInterrupt:
             print("caught keyboard interrupt, exiting")
         finally:
